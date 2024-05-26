@@ -16,8 +16,6 @@
  */
 package com.alipay.sofa.jraft.example.counter;
 
-import static com.alipay.sofa.jraft.example.counter.CounterOperation.GET;
-import static com.alipay.sofa.jraft.example.counter.CounterOperation.INCREMENT;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -40,6 +38,8 @@ import com.alipay.sofa.jraft.error.RaftException;
 import com.alipay.sofa.jraft.example.counter.snapshot.CounterSnapshotFile;
 import com.alipay.sofa.jraft.storage.snapshot.SnapshotReader;
 import com.alipay.sofa.jraft.storage.snapshot.SnapshotWriter;
+
+import static com.alipay.sofa.jraft.example.counter.CounterOperation.*;
 
 /**
  * Counter state machine.
@@ -119,6 +119,13 @@ public class CounterStateMachine extends StateMachineAdapter {
                         current = this.value.addAndGet(delta);
                         LOG.info("Added value={} by delta={} at logIndex={}", prev, delta, iter.getIndex());
                         break;
+                    case DECREMENT:
+                        final long deltaDec = counterOperation.getDelta();
+                        final long prevDec = this.value.get();
+                        current = this.value.addAndGet(-deltaDec);
+                        LOG.info("Sub value={} by delta={} at logIndex={}", prevDec, deltaDec, iter.getIndex());
+                        break;
+
                 }
 
                 if (closure != null) {
