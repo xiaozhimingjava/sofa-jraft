@@ -43,9 +43,9 @@ public interface StateMachine {
      * committed to the raft group (quorum of the group peers have received
      * those tasks and stored them on the backing storage).
      *
-     * Once this function returns to the caller, we will regard all the iterated
+     * Once this function returns to the caller, we ill regard all the iterated
      * tasks through |iter| have been successfully applied. And if you didn't
-     * apply all the the given tasks, we would regard this as a critical error
+     * apply all the the given tasks, wwe would regard this as a critical error
      * and report a error whose type is ERROR_TYPE_STATE_MACHINE.
      *
      * @param iter iterator of states

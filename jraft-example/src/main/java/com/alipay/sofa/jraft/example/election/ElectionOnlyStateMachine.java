@@ -19,6 +19,7 @@ package com.alipay.sofa.jraft.example.election;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.alipay.sofa.jraft.entity.LeaderChangeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +38,15 @@ public class ElectionOnlyStateMachine extends StateMachineAdapter {
     private final AtomicLong                leaderTerm = new AtomicLong(-1L);
     private final List<LeaderStateListener> listeners;
 
+    private List<FollowingStateListener> followingStateListeners;
+
     public ElectionOnlyStateMachine(List<LeaderStateListener> listeners) {
         this.listeners = listeners;
+    }
+
+    public ElectionOnlyStateMachine(List<LeaderStateListener> listeners,List<FollowingStateListener> followingStateListeners) {
+        this.listeners = listeners;
+        this.followingStateListeners = followingStateListeners;
     }
 
     @Override
@@ -75,5 +83,33 @@ public class ElectionOnlyStateMachine extends StateMachineAdapter {
 
     public void addLeaderStateListener(final LeaderStateListener listener) {
         this.listeners.add(listener);
+    }
+
+    public void addFollowingStateListener(final FollowingStateListener followingStateListener) {
+        this.followingStateListeners.add(followingStateListener);
+    }
+
+
+    @Override
+    public void onStartFollowing(LeaderChangeContext ctx) {
+        super.onStartFollowing(ctx);
+        List<FollowingStateListener> listeners = this.followingStateListeners;
+        if (listeners != null) {
+            for (final FollowingStateListener listener : listeners) {
+                listener.onStartFollowing(ctx);
+            }
+        }
+    }
+
+    @Override
+    public void onStopFollowing(LeaderChangeContext ctx) {
+        super.onStopFollowing(ctx);
+        List<FollowingStateListener> listeners = this.followingStateListeners;
+        if (listeners != null) {
+            for (final FollowingStateListener listener : listeners) {
+                listener.onStopFollowing(ctx);
+            }
+        }
+
     }
 }

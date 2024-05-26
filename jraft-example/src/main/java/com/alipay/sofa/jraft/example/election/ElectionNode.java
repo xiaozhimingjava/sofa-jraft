@@ -45,6 +45,9 @@ public class ElectionNode implements Lifecycle<ElectionNodeOptions> {
     private static final Logger             LOG       = LoggerFactory.getLogger(ElectionNode.class);
 
     private final List<LeaderStateListener> listeners = new CopyOnWriteArrayList<>();
+
+    private final List<FollowingStateListener> followingStateListeners = new CopyOnWriteArrayList<>();
+
     private RaftGroupService                raftGroupService;
     private Node                            node;
     private ElectionOnlyStateMachine        fsm;
@@ -62,7 +65,7 @@ public class ElectionNode implements Lifecycle<ElectionNodeOptions> {
         if (nodeOpts == null) {
             nodeOpts = new NodeOptions();
         }
-        this.fsm = new ElectionOnlyStateMachine(this.listeners);
+        this.fsm = new ElectionOnlyStateMachine(this.listeners,this.followingStateListeners);
         nodeOpts.setFsm(this.fsm);
         final Configuration initialConf = new Configuration();
         if (!initialConf.parse(opts.getInitialServerAddressList())) {
@@ -134,4 +137,9 @@ public class ElectionNode implements Lifecycle<ElectionNodeOptions> {
     public void addLeaderStateListener(final LeaderStateListener listener) {
         this.listeners.add(listener);
     }
+
+    public void addFollowingStateListener(final FollowingStateListener listener) {
+        this.followingStateListeners.add(listener);
+    }
+
 }
